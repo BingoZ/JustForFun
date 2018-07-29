@@ -10,14 +10,46 @@ class Player(object):
 
 
     def get_cards(self, raw_cards):
-        formated_cards = self.format_cards(raw_cards)
-
         self.raw_cards = raw_cards
-        self.raw_formated_cards = formated_cards
+        self.raw_formated_cards = self.format_cards(self.raw_cards)
         self.current_cards = copy(self.raw_formated_cards)
         self.smashed = False
         self.round_cards = []
         self.history_hands = []
+
+    def drop_three_cards(self):
+        drop_cards = []
+
+        cards_length = self.get_cards_length()
+        for shape,length in cards_length:
+            if 4 >= length > 0:
+                drop_cards = self.current_cards[shape][-3:]
+                self.current_cards[shape] = self.current_cards[shape][:-3]
+                break
+        if len(drop_cards) < 3:
+            for card in [('b', 12), ('a', 11), ('a', 12), ('a', 13), ('a', 14)]:
+                if len(drop_cards) >= 3:
+                    break
+
+                cards_list = self.get_cards_list()
+                if card in cards_list:
+                    drop_cards.append(card)
+                    self.current_cards[card[0]].remove(card)
+
+        while len(drop_cards) < 3:
+            cards_list = self.get_cards_list()
+            card = cards_list[-1]
+            drop_cards.append(card)
+            self.current_cards[card[0]].remove(card)
+
+        print 'player %d drop cards' % self.id, drop_cards
+        return drop_cards
+
+    def get_three_cards(self, three_cards):
+        print 'player %d get cards' % self.id, three_cards
+
+
+
 
 
     def format_cards(self, cards_list):
