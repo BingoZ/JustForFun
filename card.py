@@ -9,14 +9,19 @@ class BaseCard(object):
 
     PIG = ('S', 12)
     STAR = ('H', 2) # - H14
-    FIRST_MASTER = ('C', 2)
+
 
     def __init__(self):
         super(Card, self).__init__()
 
         self.num_func = lambda x: x[1]
 
-        
+        self._cards_db = []
+        for num in self.CARD_NUMBER:
+            for shape in self.CARD_SHAPE:
+                self._cards_db.append((shape, num))
+
+        self._cards_db = np.array(self._cards_db)        
 
 class PlayerCards(BaseCard):
     """docstring for PlayerCard"""
@@ -27,6 +32,8 @@ class PlayerCards(BaseCard):
         self.current_cards_list = copy(self.raw_cards_list)
 
         self.flush()
+
+        self.FIRST_MASTER = ('C', 2)
 
     def flush(self):
         self.current_cards_list.sort(key=self.num_func)
@@ -51,9 +58,28 @@ class PlayerCards(BaseCard):
         self.current_cards_list.remove(card)
         self.flush()
 
+    def drop_cards(self, cards):
+        for card in cards:
+            self.current_cards_list.remove(card)
+        self.flush()
+
     def add_one_card(self, card):
         self.current_cards_list.append(card)
         self.flush()
+
+    def add_cards(self, cards):
+        self.current_cards_list.extend(cards)
+        self.flush()
+
+    def is_first_master(self):
+        return True if self.FIRST_MASTER in self.current_cards_list else False
+
+    def get_opposite_cards(self, cards_list):
+        cards_opposite = copy(self._cards_db)
+        for card in cards_list:
+            cards_opposite.remove(card)
+
+        return cards_opposite
 
 
 class MasterCards(BaseCard):
@@ -61,16 +87,9 @@ class MasterCards(BaseCard):
     def __init__(self):
         super(MasterCards, self).__init__()
 
-        self.cards_db = []
-        for num in self.CARD_NUMBER:
-            for shape in self.CARD_SHAPE:
-                self.cards_db.append((shape, num))
-
-        self.cards_db = np.array(self.cards_db)
-
     def deal(self, num_of_player=4):
-        np.random.shuffle(self.cards_db)
-        self.dealed_cards = np.split(self.cards_db, num_of_player)
+        np.random.shuffle(self._cards_db)
+        self.dealed_cards = np.split(self._cards_db, num_of_player)
 
     def output_cards(self, round):
         """

@@ -1,5 +1,68 @@
 from copy import copy
 
+from card import PlayerCards
+
+class Player(object):
+    """docstring for Player"""
+    def __init__(self, id):
+        super(Player, self).__init__()
+        self.id = id
+        
+        self._score_cards_obj = PlayerCards([])
+        self._hand_cards_obj = None
+        self._opposite_cards_obj = None
+
+    def obtain_handcards(self, raw_cards):
+        self._hand_cards_obj = PlayerCards(raw_cards)
+
+    def pick_out_cards(self, number_of_picked=3):
+        drop_cards = []
+
+        # pick based on the length of shape
+        for shape, length in self._hand_cards_obj.current_length_list:
+            if 0 < length <= number_of_picked:
+                drop_cards.extend(self._hand_cards_obj.current_cards_dict[shape])
+            if len(drop_cards) >= number_of_picked:
+                break
+        if drop_cards:
+            self._hand_cards_obj.drop_cards(drop_cards)
+
+        # pick based on the BIG_SCORE_CARDS
+        for card in [('S', 12), ('H', 14), ('H', 13), ('H', 12), ('H', 11)]:
+            if card in self._hand_cards_obj.current_cards_list:
+                drop_cards.append(card)
+                self._hand_cards_obj.drop_one_card(card)
+            if len(drop_cards) >= number_of_picked:
+                break
+
+        # pick based on the BIGGEST_NUMBER cards
+        if len(drop_cards) < number_of_picked:
+            lacked_cards = self._hand_cards_obj.current_cards_list[(len(drop_cards) - number_of_picked):]
+            drop_cards.extend(lacked_cards)
+            self._hand_cards_obj.drop_cards(lacked_cards)
+
+        print 'player %d drop cards' % self.id, drop_cards
+        return drop_cards
+
+    def get_transfered_cards(self, cards):
+        self._hand_cards_obj.add_cares(cards)      
+
+        print 'player %d get cards' % self.id, cards
+
+    def is_first_master(self):
+        return self._hand_cards_obj.is_first_master()
+
+    def play(self, round, public_cards):
+        if self._opposite_cards_obj is None:
+            self._opposite_cards_obj = PlayerCards(self._hand_cards_obj.get_opposite_cards())
+
+        
+
+
+
+
+
+
 class Player(object):
     """docstring for Player"""
     def __init__(self, id):
