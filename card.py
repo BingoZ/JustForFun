@@ -29,13 +29,17 @@ class PlayerCards(BaseCard):
         super(PlayerCard, self).__init__()
         self.raw_cards_list = cards_list
 
-        self.current_cards_list = copy(self.raw_cards_list)
-
-        self.flush()
-
         self.FIRST_MASTER = ('C', 2)
 
-    def flush(self):
+        self.ONSHOWN = [('H', 14), ('S', 12), ('C', 10)] #  
+
+        self.current_cards_list = copy(self.raw_cards_list)
+
+        self._flush()
+
+        self.onshown_cards_list = []
+
+    def _flush(self):
         self.current_cards_list.sort(key=self.num_func)
 
         # get current dict
@@ -56,23 +60,29 @@ class PlayerCards(BaseCard):
 
     def drop_one_card(self, card):
         self.current_cards_list.remove(card)
-        self.flush()
+        self._flush()
 
     def drop_cards(self, cards):
         for card in cards:
             self.current_cards_list.remove(card)
-        self.flush()
+        self._flush()
 
     def add_one_card(self, card):
         self.current_cards_list.append(card)
-        self.flush()
+        self._flush()
 
     def add_cards(self, cards):
         self.current_cards_list.extend(cards)
-        self.flush()
+        self._flush()
 
     def is_first_master(self):
         return True if self.FIRST_MASTER in self.current_cards_list else False
+
+    def cards_can_show(self):
+        return [card for card in self.ONSHOWN if card in self.current_cards_list]
+
+    def add_shown_cards(self, cards):
+        self.onshown_cards_list.extend(cards)
 
     def get_opposite_cards(self, cards_list):
         cards_opposite = copy(self._cards_db)

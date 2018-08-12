@@ -52,6 +52,19 @@ class Player(object):
     def is_first_master(self):
         return self._hand_cards_obj.is_first_master()
 
+    def show_cards(self):
+        cards_can_show = self._hand_cards_obj.cards_can_show()
+
+        if self._hand_cards_obj.current_length_list[0][1] == 0:
+            return cards_can_show
+        else:
+            return []
+
+    def get_shown_cards(self, shown_cards):
+        for cards_list in show_cards:
+            self._hand_cards_obj.add_shown_cards(cards_list)
+
+
     def play(self, round, public_cards):
         if self._opposite_cards_obj is None:
             self._opposite_cards_obj = PlayerCards(self._hand_cards_obj.get_opposite_cards())
